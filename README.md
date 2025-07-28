@@ -1,47 +1,33 @@
 # D-Ganesh_data_storage
-import javax.crypto.Cipher;
-import javax.crypto.KeyGenerator;
-import javax.crypto.SecretKey;
-import javax.crypto.spec.SecretKeySpec;
-import java.util.Base64;
 
-public class PasswordEncryption {
+public class DataRepository {
+    private Map<String, String> storage = new HashMap<>();
 
-    private static final String ALGORITHM = "AES";
-    private static final byte[] KEY = "MySuperSecretKey".getBytes(); // Ideally store this securely!
-
-    public static String encrypt(String password) throws Exception {
-        SecretKeySpec secretKey = new SecretKeySpec(KEY, ALGORITHM);
-        Cipher cipher = Cipher.getInstance(ALGORITHM);
-        cipher.init(Cipher.ENCRYPT_MODE, secretKey);
-        byte[] encryptedBytes = cipher.doFinal(password.getBytes());
-        return Base64.getEncoder().encodeToString(encryptedBytes);
+    // Store data
+    public void save(String key, String value) {
+        storage.put(key, value);
     }
 
-    public static String decrypt(String encryptedPassword) throws Exception {
-        SecretKeySpec secretKey = new SecretKeySpec(KEY, ALGORITHM);
-        Cipher cipher = Cipher.getInstance(ALGORITHM);
-        cipher.init(Cipher.DECRYPT_MODE, secretKey);
-        byte[] decryptedBytes = cipher.doFinal(Base64.getDecoder().decode(encryptedPassword));
-        return new String(decryptedBytes);
-    }
-}
-
-import java.util.HashMap;
-
-public class CredentialStore {
-    private HashMap<String, String> userCredentials = new HashMap<>();
-
-    public void addUser(String username, String password) throws Exception {
-        String encryptedPassword = PasswordEncryption.encrypt(password);
-        userCredentials.put(username, encryptedPassword);
+    // Retrieve data
+    public String get(String key) {
+        return storage.getOrDefault(key, "Not Found");
     }
 
-    public boolean validateUser(String username, String inputPassword) throws Exception {
-        String storedEncrypted = userCredentials.get(username);
-        if (storedEncrypted == null) return false;
+    // Delete data
+    public void delete(String key) {
+        storage.remove(key);
+    }
 
-        String decryptedPassword = PasswordEncryption.decrypt(storedEncrypted);
-        return decryptedPassword.equals(inputPassword);
+    // Display all data
+    public void displayAll() {
+        storage.forEach((k, v) -> System.out.println(k + ": " + v));
+    }
+
+    public static void main(String[] args) {
+        DataRepository repo = new DataRepository();
+        repo.save("user1", "Alice");
+        repo.save("user2", "Bob");
+        System.out.println("Retrieve user1: " + repo.get("user1"));
+        repo.displayAll();
     }
 }
