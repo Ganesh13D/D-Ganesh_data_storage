@@ -26,3 +26,22 @@ public class PasswordEncryption {
         return new String(decryptedBytes);
     }
 }
+
+import java.util.HashMap;
+
+public class CredentialStore {
+    private HashMap<String, String> userCredentials = new HashMap<>();
+
+    public void addUser(String username, String password) throws Exception {
+        String encryptedPassword = PasswordEncryption.encrypt(password);
+        userCredentials.put(username, encryptedPassword);
+    }
+
+    public boolean validateUser(String username, String inputPassword) throws Exception {
+        String storedEncrypted = userCredentials.get(username);
+        if (storedEncrypted == null) return false;
+
+        String decryptedPassword = PasswordEncryption.decrypt(storedEncrypted);
+        return decryptedPassword.equals(inputPassword);
+    }
+}
